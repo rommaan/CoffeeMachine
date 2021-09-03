@@ -30,38 +30,62 @@ resources = {
     "coffee": 100,
 }
 
-#TODO 1 Prompt user by asking “What would you like? (espresso/latte/cappuccino):”
-# Check the user’s input to decide what to do next.
-# The prompt should show every time action has completed, e.g. once the drink is
-# dispensed. The prompt should show again to serve the next customer.
+money = 0.00
 
-#TODO 2 Turn off the Coffee Machine by entering “off” to the prompt.
-# For maintainers of the coffee machine, they can use “off” as the secret word to turn off
-# the machine. Your code should end execution when this happens.
+turned_on = True
 
-#TODO 3 Print report. When the user enters “report” to the prompt, a report should be generated
-# that shows the current resource values.
-# Water: 100ml
-# Milk: 50ml
-# Coffee: 76g
-# Money: $2.5
+payment = 0.00
+
+order = input("What would you like? (espresso/latte/cappuccino):")
+if order == "espresso":
+    resources["water"] -= 50
+    resources["coffee"] -= 18
+    money += 1.5
+elif order == "latte":
+    resources["water"] -= 200
+    resources["milk"] -= 150
+    resources["coffee"] -= 24
+    money += 2.5
+elif order == "cappuccino":
+    resources["water"] -= 250
+    resources["milk"] -= 100
+    resources["coffee"] -= 24
+    money += 3
+elif order == "report":
+    print(f" Water: {resources['water']}")
+    print(f" Milk: {resources['milk']}")
+    print(f" Coffee: {resources['coffee']}")
+    print(f"Money: ${money}")
+else:
+    print("Could you please repeat what you'd like?")
 
 
-#TODO 4 Check resources sufficient?
+
+
+# TODO 4 Check resources sufficient?
 # a. When the user chooses a drink, the program should check if there are enough
 # resources to make that drink.
 # b. E.g. if Latte requires 200ml water but there is only 100ml left in the machine. It should
 # not continue to make the drink but print: “Sorry there is not enough water.”
 # c. The same should happen if another resource is depleted, e.g. milk or coffee.
 
-#TODO 5 Process coins.
-# a. If there are sufficient resources to make the drink selected, then the program should
-# prompt the user to insert coins.
-# b. Remember that quarters = $0.25, dimes = $0.10, nickles = $0.05, pennies = $0.01
-# c. Calculate the monetary value of the coins inserted. E.g. 1 quarter, 2 dimes, 1 nickel, 2
-# pennies = 0.25 + 0.1 x 2 + 0.05 + 0.01 x 2 = $0.52
 
-#TODO 6 Check transaction successful?
+def check_resources():
+# a. If there are sufficient resources to make the drink selected, then the program should
+
+
+def accept_payment():
+    print("Please insert coins!")
+    quarters = int(input("How many quarters:  ")) * 0.25
+    dimes = int(input("How many dimes:  ")) * 0.10
+    nickles = int(input("How many nickles:  ")) * 0.05
+    pennies = int(input("How many pennies:  ")) * 0.01
+    payment = quarters + dimes + nickles + pennies
+    print(f"You inserted ${payment}.")
+    return payment
+
+
+# TODO 6 Check transaction successful?
 # a. Check that the user has inserted enough money to purchase the drink they selected.
 # E.g Latte cost $2.50, but they only inserted $0.52 then after counting the coins the
 # program should say “Sorry that's not enough money. Money refunded.”.
@@ -76,7 +100,10 @@ resources = {
 # places.
 
 
-#TODO 7 Make Coffee.
+def check_payment():
+
+
+# TODO 7 Make Coffee.
 # a. If the transaction is successful and there are enough resources to make the drink the
 # user selected, then the ingredients to make the drink should be deducted from the
 # coffee machine resources.
@@ -92,6 +119,32 @@ resources = {
 # Money: $2.5
 # b. Once all resources have been deducted, tell the user “Here is your latte. Enjoy!”. If
 # latte was their choice of drink.
+
+
+
+# TODO 2 Turn off the Coffee Machine by entering “off” to the prompt.
+# For maintainers of the coffee machine, they can use “off” as the secret word to turn off
+# the machine. Your code should end execution when this happens.
+
+if order == "off":
+    turned_on = False
+else:
+    turned_on = True
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
