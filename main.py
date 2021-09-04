@@ -24,40 +24,78 @@ MENU = {
     }
 }
 
-resources = {
+RESOURCES = {
     "water": 300,
     "milk": 200,
     "coffee": 100,
 }
 
-money = 0.00
+BALANCE = 0.00
 
-turned_on = True
+TURNED_ON = True
 
-payment = 0.00
+payment =0.00
 
-order = input("What would you like? (espresso/latte/cappuccino):")
-if order == "espresso":
-    resources["water"] -= 50
-    resources["coffee"] -= 18
-    money += 1.5
-elif order == "latte":
-    resources["water"] -= 200
-    resources["milk"] -= 150
-    resources["coffee"] -= 24
-    money += 2.5
-elif order == "cappuccino":
-    resources["water"] -= 250
-    resources["milk"] -= 100
-    resources["coffee"] -= 24
-    money += 3
-elif order == "report":
-    print(f" Water: {resources['water']}")
-    print(f" Milk: {resources['milk']}")
-    print(f" Coffee: {resources['coffee']}")
-    print(f"Money: ${money}")
-else:
-    print("Could you please repeat what you'd like?")
+ORDER = input("What would you like? (espresso/latte/cappuccino): ")
+
+def select_drink(drink):
+    drink = ORDER
+    for choice, value in MENU.items():
+        if drink == value:
+            choice = MENU[drink]
+            print(f"drink: {drink}")
+            water = MENU[drink]["ingredients"]["water"]
+            print(f"water: {water}")
+            milk = MENU[drink]["ingredients"]["milk"]
+            print(f"milk: {milk}")
+            coffee = MENU[drink]["ingredients"]["coffee"]
+            print(f"coffee: {coffee}")
+            cost = MENU[drink]["cost"]
+            print(f"cost: {cost}")
+
+            return choice, water, milk, coffee, cost
+        else:
+            print("I'm just a simple coffee machine")
+    return "This item is not on the menu"
+
+def recalculate_resources(drink):
+    drink = ORDER
+    resources = RESOURCES
+    for resource, value in resources.items():
+        if value in drink["ingredients"]:
+            resources[value] -= drink["ingredients"][value]
+            print(f"Water: {resources[value]}")
+            return
+            resources
+
+
+def recalculate_balance(drink):
+    drink = ORDER
+    balance = BALANCE
+    balance_addition = 0.00
+    for choice, value in MENU.items():
+        if drink == value:
+            balance_addition = MENU[choice]["cost"]
+            balance += balance_addition
+            print(f"Balance : {balance}")
+            return balance
+    return "no such drink in the machine"
+
+
+def report(drink):
+    drink = ORDER
+    balance = BALANCE
+    resources = RESOURCES
+    recalculate_balance(drink)
+    recalculate_resources(drink)
+
+    print(f"Your new balance is ${balance}")
+    print(f"Water: {resources['water']}")
+    print(f"Milk: {resources['milk']}")
+    print(f"Coffee: {resources['coffee']}")
+
+
+
 
 
 
@@ -75,14 +113,15 @@ def check_resources():
 
 
 def accept_payment():
+    paid = 0.00
     print("Please insert coins!")
     quarters = int(input("How many quarters:  ")) * 0.25
     dimes = int(input("How many dimes:  ")) * 0.10
     nickles = int(input("How many nickles:  ")) * 0.05
     pennies = int(input("How many pennies:  ")) * 0.01
-    payment = quarters + dimes + nickles + pennies
+    paid = quarters + dimes + nickles + pennies
     print(f"You inserted ${payment}.")
-    return payment
+    return paid
 
 
 # TODO 6 Check transaction successful?
@@ -100,7 +139,26 @@ def accept_payment():
 # places.
 
 
-def check_payment():
+def check_payment(paid, drink):
+    drink = ORDER
+    change = 0.00
+    cost = MENU[drink]["cost"]
+    if paid < MENU[drink]:
+        print("Sorry that's not enough money. Money refunded.")
+    else:
+        if paid > cost:
+            #calculate change
+            change = round((cost - paid), 2)
+            print(f"Here is ${change} dollars in change.")
+        else:
+            print(f"Here is your {drink}.Enjoy!")
+        # calculate report
+
+
+
+
+
+
 
 
 # TODO 7 Make Coffee.
@@ -126,10 +184,16 @@ def check_payment():
 # For maintainers of the coffee machine, they can use “off” as the secret word to turn off
 # the machine. Your code should end execution when this happens.
 
-if order == "off":
-    turned_on = False
-else:
-    turned_on = True
+def turn_off(order):
+    turned_on =  TURNED_ON
+    order = ORDER
+    if order == "off":
+        turned_on = False
+    else:
+        turned_on = True
+    return turned_on
+
+
 
 
 
