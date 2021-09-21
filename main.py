@@ -30,37 +30,38 @@ RESOURCES = {
     "coffee": 100,
 }
 
+order = ""
+payment = 0.00
+balance = 0.00
+enough_stuff = True
+enough_money = True
+change = 0.00
+working = True
 
 
+def check_resources(order, enough_stuff):
+    drink = order
+    drink_ingredient_name = ""
+    drink_ingredient_quantity = 0
+    for drink_ingredient in drink:
+        if drink in MENU:
+            print(f"order ingredient is: {drink_ingredient_name} = {drink_ingredient_quantity}")
+            return drink_ingredient_name, drink_ingredient_quantity
+        else:
+            print("Sorry we don't have this on the menu")
+    resource_ingredient_name = ""
+    resource_ingredient_quantity = 0
+    for resource_ingredient in RESOURCES:
+        if drink_ingredient_name == resource_ingredient_name:
+            if drink_ingredient_quantity > resource_ingredient_quantity:
+                print(f"Sorry! There is not enough {resource_ingredient_name}.")
+                enough_stuff = False
+            else:
+                enough_stuff = True
+    return enough_stuff
 
 
-
-money = 0.00
-
-
-# TODO 1. Prompt user by asking “What would you like? (espresso/latte/cappuccino):”
-# a. Check the user’s input to decide what to do next.
-def prompt():
-    drink = input("What would you like? (espresso/latte/cappuccino): ")
-    return drink
-
-
-# TODO 2. Check resources sufficient?
-# a. When the user chooses a drink, the program should check if there are enough
-# resources to make that drink.
-#get each ingredient name and quantity out of the drink ordered
-
-#check if the ingredient's name is in the resources names
-
-#compare each ingredient's quantity with resource quantity
-#if ingredient's quantity < resource quantity: continue to coins todo3.
-#if ingredient's quantity > resource quantity: stop the process.
-# print: “Sorry there is not enough water.”
-
-
-# TODO 3. Process coins.
-
-def accept_coins():
+def accept_coins(order):
     print("Please insert coins!")
     quarters = int(input("How many quarters:  ")) * 0.25
     dimes = int(input("How many dimes:  ")) * 0.10
@@ -71,47 +72,105 @@ def accept_coins():
     return payment
 
 
-
-# TODO 4. Check transaction successful?
-# a. Check that the user has inserted enough money to purchase the drink they selected.
-# E.g Latte cost $2.50, but they only inserted $0.52 then after counting the coins the
-# program should say “Sorry that's not enough money. Money refunded.”.
-# b. But if the user has inserted enough money, then the cost of the drink gets added to the
-# machine as the profit and this will be reflected the next time “report” is triggered.
-# c. If the user has inserted too much money, the machine should offer change.
-# E.g. “Here is $2.45 dollars in change.” The change should be rounded to 2 decimal
-# places.
-#E.g. “Here is $2.45 dollars in change.” The change should be rounded to 2 decimal
-# places.
-def check_payment(drink, payment, balance = money):
+def check_payment(order, payment, balance):
     change = 0.0
-    if drink == "espresso":
+    enough_money = True
+    if order == "espresso":
         if payment < MENU["espresso"]["cost"]:
-            print("Sorry that's not enough money. Money refunded.")
+            enough_money = False
         else:
             balance += MENU["espresso"]["cost"]
+            enough_money = True
             change = round((payment - MENU["espresso"]["cost"]), 2)
-            print(f"Here is your {drink}.Enjoy!")
-            print(f"Here is ${change} dollars in change.")
-            return change
-    elif drink == "latte":
+    elif order == "latte":
         if payment < MENU["latte"]["cost"]:
-            print("Sorry that's not enough money. Money refunded.")
+            enough_money = False
         else:
+            balance += MENU["latte"]["cost"]
+            enough_money = True
             change = round((payment - MENU["latte"]["cost"]), 2)
-            print(f"Here is your {drink}.Enjoy!")
-            print(f"Here is ${change} dollars in change.")
-            return change
-    elif drink == "cappuccino":
+    elif order == "cappuccino":
         if payment < MENU["cappuccino"]["cost"]:
-            print("Sorry that's not enough money. Money refunded.")
+            enough_money = False
         else:
+            balance += MENU["cappuccino"]["cost"]
+            enough_money = True
             change = round((payment - MENU["cappuccino"]["cost"]), 2)
-            print(f"Here is your {drink}.Enjoy!")
-            print(f"Here is ${change} dollars in change.")
-            return change
     else:
-        print(f"no such drink as {drink} exists")
+        print(f"no such drink as {order} exists")
+    return enough_money, order, change, balance
+
+
+def recalculate_resources(order):
+
+    if order == "espresso":
+        RESOURCES["water"] -= MENU["espresso"]["ingredients"]["water"]
+        print(f"Water: {RESOURCES['water']}")
+        RESOURCES["coffee"] -= MENU["espresso"]["ingredients"]["coffee"]
+        print(f"Coffee: {RESOURCES['coffee']}")
+    elif order == "latte":
+        RESOURCES["water"] -= MENU["latte"]["ingredients"]["water"]
+        print(f"Water: {RESOURCES['water']}")
+        RESOURCES["milk"] -= MENU["latte"]["ingredients"]["milk"]
+        print(f"Milk: {RESOURCES['milk']}")
+        RESOURCES["coffee"] -= MENU["latte"]["ingredients"]["milk"]
+        print(f"Coffee: {RESOURCES['coffee']}")
+    elif order == "cappuccino":
+        RESOURCES["water"] -= MENU["cappuccino"]["ingredients"]["water"]
+        print(f"Water: {RESOURCES['water']}")
+        RESOURCES["milk"] -= MENU["cappuccino"]["ingredients"]["milk"]
+        print(f"Milk: {RESOURCES['milk']}")
+        RESOURCES["coffee"] -= MENU["cappuccino"]["ingredients"]["milk"]
+        print(f"Coffee: {RESOURCES['coffee']}")
+    else:
+        print("No such drink")
+    return RESOURCES
+
+
+def recalculate_balance(order, balance):
+    balance_addition = 0.00
+    for choice, value in MENU.items():
+        if order == value:
+            balance_addition = MENU[choice]["cost"]
+            balance += balance_addition
+            print(f"Balance : {balance}")
+            return balance
+    return "no such drink in the machine"
+
+
+def report():
+    print(f"Your new balance is ${balance}")
+    print(f"Water: {RESOURCES['water']}")
+    print(f"Milk: {RESOURCES['milk']}")
+    print(f"Coffee: {RESOURCES['coffee']}")
+
+
+while working:
+    order = input("What would you like? (espresso/latte/cappuccino): ")
+    if order == "off":
+        working = False
+    elif order == "report":
+        report()
+    else:
+        check_resources(order, enough_stuff)
+        if enough_stuff:
+            accept_coins(order)
+            check_payment(order, payment, balance)
+            if enough_money:
+                print(f"Here is ${change} dollars in change.")
+                print(f"Here is your {order}.Enjoy!")
+                recalculate_balance(order, balance)
+            else:
+                print("Sorry that's not enough money. Money refunded.")
+        else:
+            print(f"Sorry! There is not enough resources.")
+
+
+
+
+
+
+
 
 
 
@@ -186,55 +245,6 @@ def select_drink(drink):
             print("I'm just a simple coffee machine")
     return "This item is not on the menu"
 
-def recalculate_resources(drink):
-    drink = ORDER
-    resources = RESOURCES
-    if drink == "espresso":
-        resources["water"] -= MENU["espresso"]["ingredients"]["water"]
-        print(f"Water: {resources['water']}")
-        resources["coffee"] -= MENU["espresso"]["ingredients"]["coffee"]
-        print(f"Coffee: {resources['coffee']}")
-    elif drink == "latte":
-        resources["water"] -= MENU["latte"]["ingredients"]["water"]
-        print(f"Water: {resources['water']}")
-        resources["milk"] -= MENU["latte"]["ingredients"]["milk"]
-        print(f"Milk: {resources['milk']}")
-        resources["coffee"] -= MENU["latte"]["ingredients"]["milk"]
-        print(f"Coffee: {resources['coffee']}")
-    elif drink == "cappuccino":
-        resources["water"] -= MENU["cappuccino"]["ingredients"]["water"]
-        print(f"Water: {resources['water']}")
-        resources["milk"] -= MENU["cappuccino"]["ingredients"]["milk"]
-        print(f"Milk: {resources['milk']}")
-        resources["coffee"] -= MENU["cappuccino"]["ingredients"]["milk"]
-        print(f"Coffee: {resources['coffee']}")
-    else:
-        print("No such drink")
-    return resources
-
-
-
-def recalculate_balance(drink):
-    drink = ORDER
-    balance = BALANCE
-    balance_addition = 0.00
-    for choice, value in MENU.items():
-        if drink == value:
-            balance_addition = MENU[choice]["cost"]
-            balance += balance_addition
-            print(f"Balance : {balance}")
-            return balance
-    return "no such drink in the machine"
-
-
-def report():
-    balance = BALANCE
-    resources = RESOURCES
-
-    print(f"Your new balance is ${balance}")
-    print(f"Water: {resources['water']}")
-    print(f"Milk: {resources['milk']}")
-    print(f"Coffee: {resources['coffee']}")
 
 
 
@@ -242,19 +252,8 @@ def report():
 
 
 
-# TODO 4 Check resources sufficient?
-# a. When the user chooses a drink, the program should check if there are enough
-# resources to make that drink.
-# b. E.g. if Latte requires 200ml water but there is only 100ml left in the machine. It should
-# not continue to make the drink but print: “Sorry there is not enough water.”
-# c. The same should happen if another resource is depleted, e.g. milk or coffee.
 
 
-def check_resources():
-    drink = ORDER
-    select_drink(drink)
-    recalculate_resources(drink)
-    if choice
 
 
 
