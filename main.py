@@ -41,33 +41,31 @@ working = True
 
 def check_resources(order, enough_stuff):
     drink = order
-    drink_ingredient_name = ""
+    drink_ingredient = ""
     drink_ingredient_quantity = 0
-    for drink_ingredient in drink:
-        if drink in MENU:
-            print(f"order ingredient is: {drink_ingredient_name} = {drink_ingredient_quantity}")
-            return drink_ingredient_name, drink_ingredient_quantity
+    for drink_ingredient in MENU[drink]["ingredients"]:
+        drink_ingredient_quantity = MENU[drink]["ingredients"][drink_ingredient]
+        if drink_ingredient_quantity > RESOURCES[drink_ingredient]:
+            print(f"Sorry! There is not enough {drink_ingredient}.")
+            enough_stuff = False
         else:
-            print("Sorry we don't have this on the menu")
-    resource_ingredient_name = ""
-    resource_ingredient_quantity = 0
-    for resource_ingredient in RESOURCES:
-        if drink_ingredient_name == resource_ingredient_name:
-            if drink_ingredient_quantity > resource_ingredient_quantity:
-                print(f"Sorry! There is not enough {resource_ingredient_name}.")
-                enough_stuff = False
-            else:
-                enough_stuff = True
-    return enough_stuff
+            RESOURCES[drink_ingredient] -= drink_ingredient_quantity
+            print(f"Will use {drink_ingredient_quantity} of {drink_ingredient}")
+            enough_stuff = True
+    return drink_ingredient, drink_ingredient_quantity, enough_stuff, RESOURCES
 
 
-def accept_coins(order):
+def accept_coins():
     print("Please insert coins!")
     quarters = int(input("How many quarters:  ")) * 0.25
+    print(f"inserted ${quarters} in quarters")
     dimes = int(input("How many dimes:  ")) * 0.10
+    print(f"inserted ${dimes} in dimes")
     nickles = int(input("How many nickles:  ")) * 0.05
+    print(f"inserted ${nickles} in nickles")
     pennies = int(input("How many pennies:  ")) * 0.01
-    payment = quarters + dimes + nickles + pennies
+    print(f"inserted ${pennies} in pennies")
+    payment = float(quarters + dimes + nickles + pennies)
     print(f"You inserted ${payment}.")
     return payment
 
@@ -147,22 +145,32 @@ def report():
 
 while working:
     order = input("What would you like? (espresso/latte/cappuccino): ")
-    if order == "off":
-        working = False
-    elif order == "report":
-        report()
-    else:
-        check_resources(order, enough_stuff)
-        if enough_stuff:
-            accept_coins(order)
-            check_payment(order, payment, balance)
-            if enough_money:
-                print(f"Here is ${change} dollars in change.")
-                print(f"Here is your {order}.Enjoy!")
-                recalculate_balance(order, balance)
-            else:
-                print("Sorry that's not enough money. Money refunded.")
+    if order in MENU.keys():
+        print("Ein moment!")
+        print(f"{order} was ordered")
+        print(f"Price is ${MENU[order]['cost']}")
+        if order == "off":
+            print("Off was pressed")
+            working = False
+        elif order == "report":
+            print("Report was ordered")
+            report()
         else:
-            print(f"Sorry! There is not enough resources.")
-
+            check_resources(order, enough_stuff)
+            if enough_stuff:
+                accept_coins(order)
+                print("f{payment} in coins was accepted")
+                check_payment(order, payment, balance)
+                print(f"payment is {payment}, order is {order}, balance is {balance}")
+                if enough_money:
+                    print(f"Here is ${change} dollars in change.")
+                    print(f"Here is your {order}.Enjoy!")
+                    recalculate_balance(order, balance)
+                    print(f"order is {order}. Balance is {balance}")
+                else:
+                    print("Sorry that's not enough money. Money refunded.")
+            else:
+                print(f"Sorry! There is not enough resources.")
+    else:
+        print("Sorry we don't have this on the menu")
 
